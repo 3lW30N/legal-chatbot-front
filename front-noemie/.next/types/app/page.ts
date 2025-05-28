@@ -1,4 +1,4 @@
-// File: /Users/noemie/Desktop/chatbot/legal-chatbot-front/app/page.tsx
+// File: /Users/noemie/Desktop/chatbot/legal-chatbot-front/front-noemie/app/page.tsx
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
