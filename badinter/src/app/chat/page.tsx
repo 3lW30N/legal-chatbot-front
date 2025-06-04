@@ -378,7 +378,7 @@ export default function ChatbotInterface() {
                   ref={inputRef}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyPress}
                   placeholder={isInputDisabled ? "Attendez la réponse..." : "Tapez votre message ici..."}
                   className={`input-field ${isInputDisabled ? "disabled" : ""}`}
                   disabled={isInputDisabled}

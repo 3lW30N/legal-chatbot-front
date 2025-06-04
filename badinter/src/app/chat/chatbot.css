@@ -1,16 +1,16 @@
 /* Variables CSS */
 :root {
-  --primary-bg: #1a0b2e;
-  --secondary-bg: #16213e;
+  --primary-bg: #08013a;
+  --secondary-bg: #140b59;
   --accent-bg: #0f3460;
-  --card-bg: #27136a;
-  --active-bg: #1d1d95;
+  --card-bg: #0A0057;
+  --active-bg: #0e0367;
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
-  --border-color: #32227c;
-  --accent-blue: #5b3aed;
-  --accent-blue-light: #7055f7;
+  --border-color: #23227c;
+  --accent-blue: #26198a;
+  --accent-blue-light: #403789;
   --danger-bg: #7f1d1d;
   --disabled-bg: #1e1b4b;
   --disabled-text: #6b7280;
@@ -63,7 +63,7 @@
 }
 
 .new-chat-button:hover {
-  background: linear-gradient(135deg, var(--accent-blue-light) 0%, #9b89f6 100%);
+  background: linear-gradient(135deg, var(--accent-blue-light) 0%, #0A0057 100%);
 }
 
 .sidebar-close-button {
@@ -238,7 +238,7 @@
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-primary);
-  background: linear-gradient(135deg, var(--accent-blue-light) 0%, #c084fc 100%);
+  background: linear-gradient(135deg, var(--accent-blue-light) 0%, #8486fc 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -257,6 +257,11 @@
   border-radius: 0.5rem;
   cursor: pointer;
   color: var(--text-secondary);
+}
+
+.header-button:hover {
+  background-color: var(--danger-bg);
+  color: #fca5a5;
 }
 
 .header-button-icon {
