@@ -2,6 +2,7 @@
 
 import type React from "react"
 import "./chatbot.css"
+import Image from "next/image";
 
 import { useState, useEffect, useRef } from "react"
 import { MessageCircle, Plus, Send, User, Gavel, Trash2, LogOut, UserCircle, Loader2, Menu, X } from "lucide-react"
@@ -322,6 +323,14 @@ export default function ChatbotInterface() {
         {/* Zone de conversation */}
         <div className="chat-area" ref={messagesContainerRef} onScroll={handleScroll}>
           <div className="messages-container">
+            <Image
+                className="messages-container"
+                src="/logooo.png"
+                alt="Mon logo"
+                width={300}
+                height={0}
+                priority
+                />
             {chats
               .find((chat) => chat.id === activeChat)
               ?.messages.map((message) => (
