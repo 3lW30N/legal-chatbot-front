@@ -1,0 +1,297 @@
+/* Variables pour les couleurs principales */
+:root {
+  --primary-color: #0c025d;
+  --secondary-color: #12006e;
+  --text-color: white;
+  --button-hover: rgba(255, 255, 255, 0.2);
+}
+
+/* Conteneur principal avec défilement */
+.container {
+  min-height: 100vh;
+  background-color: var(--primary-color);
+  position: relative;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Barre de navigation fixe */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 2rem;
+  background-color: var(--primary-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  height: 70px;
+  backdrop-filter: blur(10px);
+}
+
+/* Logo dans la barre de navigation */
+.navLogo {
+  object-fit: contain;
+  height: auto;
+  max-height: 60px;
+  width: auto;
+}
+
+/* Navigation à droite */
+.navigation {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Boutons de navigation */
+.navButton {
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--text-color);
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.navButton:hover {
+  background-color: var(--text-color);
+  color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+/* Contenu principal avec défilement */
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 90px 2rem 4rem;
+  min-height: calc(100vh - 70px);
+  position: relative;
+  z-index: 10;
+}
+
+/* Wrapper pour le contenu centré */
+.contentWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+/* Logo Badinter */
+.badinterLogo {
+  object-fit: contain;
+  max-width: 100%;
+  height: auto;
+  order: 1;
+}
+
+/* Conteneur pour les boutons d'action - maintenant sous le logo */
+.buttonContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+  order: 2;
+}
+
+/* Boutons d'action */
+.actionButton {
+  background-color: transparent;
+  border: 2px solid var(--text-color);
+  border-radius: 50px;
+  color: var(--text-color);
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: 1rem 2.5rem;
+  min-width: 180px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.actionButton:hover {
+  background-color: var(--text-color);
+  color: var(--primary-color);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px var(--button-hover);
+}
+
+/* Section de contenu supplémentaire */
+.additionalContent {
+  width: 100%;
+  max-width: 1200px;
+  margin: 4rem auto 0;
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-color);
+}
+
+.contentSection {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.sectionTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+.sectionText {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1.5rem;
+}
+
+/* Image décorative */
+.decorativeImage {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  z-index: 5;
+  object-fit: contain;
+  opacity: 0.7;
+  max-width: 25%;
+  height: auto;
+  pointer-events: none;
+}
+
+/* Ajustements responsifs */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.5rem 1rem;
+  }
+
+  .navLogo {
+    max-height: 50px;
+  }
+
+  .badinterLogo {
+    margin-bottom: 2rem;
+  }
+
+  .buttonContainer {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .actionButton {
+    font-size: 1rem;
+    padding: 0.875rem 2rem;
+    min-width: 160px;
+  }
+
+  .additionalContent {
+    padding: 1rem;
+    margin-top: 2rem;
+  }
+
+  .contentSection {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+
+  .sectionText {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.5rem;
+    height: 60px;
+  }
+
+  .navLogo {
+    max-height: 40px;
+  }
+
+  .navButton {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .mainContent {
+    padding: 80px 1rem 2rem;
+  }
+
+  .badinterLogo {
+    margin-bottom: 1.5rem;
+  }
+
+  .actionButton {
+    font-size: 0.9rem;
+    padding: 0.75rem 1.5rem;
+    min-width: 140px;
+  }
+
+  .decorativeImage {
+    max-width: 35%;
+  }
+
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-height: 480px) {
+  .navbar {
+    padding: 0.5rem;
+    height: 60px;
+  }
+
+  .navLogo {
+    max-height: 40px;
+  }
+
+  .navButton {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .mainContent {
+    padding: 80px 1rem 2rem;
+  }
+
+  .badinterLogo {
+    max-width: 30%;
+    max-height: 20%;
+  }
+
+  .actionButton {
+    font-size: 0.9rem;
+    padding: 1.5rem 0.75rem;
+    min-width: 140px;
+  }
+
+  .decorativeImage {
+    max-width: 35%;
+  }
+
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+}

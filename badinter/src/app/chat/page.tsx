@@ -2,6 +2,7 @@
 
 import type React from "react"
 import "./chatbot.css"
+import Image from "next/image"
 
 import { useState, useEffect, useRef } from "react"
 import { MessageCircle, Plus, Send, User, Gavel, Trash2, LogOut, UserCircle, Loader2, Menu, X } from "lucide-react"
@@ -97,10 +98,12 @@ export default function ChatbotInterface() {
       inputRef.current.focus()
     }
 
-    // Fermer la sidebar sur mobile après sélection d'un chat
-    if (window.innerWidth <= 768) {
-      setIsSidebarOpen(false)
+    if (inputRef.current && canSendMessage()) {
+      inputRef.current.focus()
     }
+
+    // Fermer la sidebar après sélection d'un chat
+    setIsSidebarOpen(false)
   }, [activeChat])
 
   // Vérifier si l'utilisateur peut envoyer un message
@@ -170,7 +173,7 @@ export default function ChatbotInterface() {
       setIsBotResponding(false)
 
       // Le focus sera automatiquement mis sur l'input grâce à l'useEffect qui surveille isBotResponding
-    }, 1000) // Délai plus long pour mieux voir l'effet
+    }, 2000) // Délai plus long pour mieux voir l'effet
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -184,7 +187,7 @@ export default function ChatbotInterface() {
     const newChatId = Date.now().toString()
     const newChat: Chat = {
       id: newChatId,
-      title: `Nouvelle discussion`,
+      title: `Nouvelle discussion ${new Date().toLocaleDateString("fr-FR")}`,
       lastUpdated: new Date(),
       messages: [], // Commencer avec une liste vide
     }
@@ -211,7 +214,7 @@ export default function ChatbotInterface() {
       const newChatId = Date.now().toString()
       const newChat: Chat = {
         id: newChatId,
-        title: `Nouvelle discussion`,
+        title: `Nouvelle discussion ${new Date().toLocaleDateString("fr-FR")}`,
         lastUpdated: new Date(),
         messages: [], // Commencer avec une liste vide
       }
@@ -246,17 +249,17 @@ export default function ChatbotInterface() {
 
   return (
     <div className="chatbot-container">
-      {/* Overlay pour fermer la sidebar sur mobile */}
-      {isSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />}
+      {/* Overlay pour fermer la sidebar */}
+      {isSidebarOpen && <div className="sidebar-overlay active" onClick={() => setIsSidebarOpen(false)} />}
 
-      {/* Sidebar - Historique des discussions */}
+      {/* Sidebar - Toujours cachée par défaut */}
       <div className={`sidebar ${isSidebarOpen ? "sidebar-open" : ""}`}>
         <div className="sidebar-header">
           <button onClick={startNewChat} className="new-chat-button">
             <Plus className="icon" />
             Nouveau Chat
           </button>
-          {/* Bouton fermer pour mobile */}
+          {/* Bouton fermer */}
           <button className="sidebar-close-button" onClick={() => setIsSidebarOpen(false)}>
             <X className="icon" />
           </button>
@@ -294,19 +297,26 @@ export default function ChatbotInterface() {
         </div>
       </div>
 
-      {/* Zone principale */}
+      {/* Zone principale - Prend toute la largeur */}
       <div className="main-area">
         {/* Barre supérieure */}
         <div className="header">
           <div className="header-left">
-            {/* Bouton hamburger pour mobile */}
+            {/* Bouton hamburger toujours visible */}
             <button className="hamburger-button" onClick={toggleSidebar}>
               <Menu className="hamburger-icon" />
             </button>
             <div className="bot-avatar">
-              <Gavel className="bot-icon" />
+              <Image
+                src="/logochatbot.png"
+                alt="logo "
+                width={400}
+                height={200}
+                priority
+                className="bot-icon"
+              />
             </div>
-            <h1 className="header-title">Badinter</h1>
+            <h1 className="header-title">BADINTER</h1>
           </div>
 
           <div className="header-buttons">
@@ -321,6 +331,14 @@ export default function ChatbotInterface() {
 
         {/* Zone de conversation */}
         <div className="chat-area" ref={messagesContainerRef} onScroll={handleScroll}>
+          <Image
+            src="/logoo.png"
+            alt="logo badinter"
+            width={400}
+            height={200}
+            priority
+            className="decorativeImage"
+          />
           <div className="messages-container">
             {chats
               .find((chat) => chat.id === activeChat)
@@ -378,7 +396,7 @@ export default function ChatbotInterface() {
                   ref={inputRef}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyPress}
                   placeholder={isInputDisabled ? "Attendez la réponse..." : "Tapez votre message ici..."}
                   className={`input-field ${isInputDisabled ? "disabled" : ""}`}
                   disabled={isInputDisabled}
