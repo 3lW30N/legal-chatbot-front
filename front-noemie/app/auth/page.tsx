@@ -25,15 +25,85 @@ export default function AuthPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulation d'authentification
-    setTimeout(() => {
-      const userData = {
-        name: formData.name || formData.email.split("@")[0],
-        email: formData.email,
+    try {
+      if (isLogin) {
+        // LOGIN
+        const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/auth/login", {
+          method: "POST",
+          mode: "cors",
+          credentials: "include", // Important pour les cookies httpOnly
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            grant_type: "password",
+            username: formData.email,
+            password: formData.password,
+          }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          // Sauvegarder les infos utilisateur localement
+          localStorage.setItem("user", JSON.stringify(data.user))
+          console.log("Connexion réussie:", data.message)
+          router.push("/chat")
+        } else {
+          const errorData = await response.json()
+          console.error("Erreur de connexion:", errorData.detail || "Erreur inconnue")
+          alert("Email ou mot de passe incorrect")
+        }
+      } else {
+        // REGISTER
+        const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/auth/register", {
+          method: "POST",
+          mode: "cors",
+          credentials: "include", // Pour recevoir les cookies
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          console.log("Inscription réussie:", data)
+          
+          // Après inscription, connexion automatique
+          const loginResponse = await fetch(process.env.NEXT_PUBLIC_API_URL + "/auth/login", {
+            method: "POST",
+            mode: "cors",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              grant_type: "password",
+              username: formData.email,
+              password: formData.password,
+            }),
+          })
+
+          if (loginResponse.ok) {
+            const loginData = await loginResponse.json()
+            localStorage.setItem("user", JSON.stringify(loginData.user))
+            router.push("/chat")
+          }
+        } else {
+          const errorData = await response.json()
+          console.error("Erreur d'inscription:", errorData.detail || "Erreur inconnue")
+          alert("Erreur lors de l'inscription: " + (errorData.detail || "Erreur inconnue"))
+        }
       }
-      localStorage.setItem("user", JSON.stringify(userData))
-      router.push("/chat")
-    }, 1500)
+    } catch (error) {
+      console.error("Erreur réseau:", error)
+      alert("Erreur de connexion au serveur")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -176,7 +246,7 @@ export default function AuthPage() {
 
               <div className="pt-4 border-t border-white/20">
                 <p className="text-xs text-white/60 text-center">
-                  En vous connectant, vous acceptez nos conditions d'utilisation et notre politique de confidentialité.
+                  En vous connectant, vous acceptez nos conditions d&apos;utilisation et notre politique de confidentialité.
                 </p>
               </div>
             </CardContent>

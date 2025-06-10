@@ -10,6 +10,23 @@ import { Badge } from "@/components/ui/badge"
 import { Send, Bot, User, ArrowLeft, Scale, History, Plus, LogOut, Sparkles, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { AuthGuard } from "@/components/AuthGuard"
+import { logout } from "@/lib/auth"
+
+interface Message {
+  id: string
+  content: string
+  role: "user" | "assistant"
+  timestamp: Date
+}
+
+interface Conversation {
+  id: string
+  title: string
+  messages: Message[]
+  createdAt: Date
+  updatedAt: Date
+}
 
 interface Message {
   id: string
@@ -99,11 +116,11 @@ export default function ChatPage() {
     // Charger les conversations sauvegardées
     const savedConversations = localStorage.getItem("conversations")
     if (savedConversations) {
-      const parsed = JSON.parse(savedConversations).map((conv: any) => ({
+      const parsed = JSON.parse(savedConversations).map((conv: Conversation) => ({
         ...conv,
         createdAt: new Date(conv.createdAt),
         updatedAt: new Date(conv.updatedAt),
-        messages: conv.messages.map((msg: any) => ({
+        messages: conv.messages.map((msg: Message) => ({
           ...msg,
           timestamp: new Date(msg.timestamp),
         })),
@@ -216,10 +233,12 @@ export default function ChatPage() {
     }
   }
 
-  const logout = () => {
-    localStorage.removeItem("user")
-    localStorage.removeItem("conversations")
-    router.push("/auth")
+  const handleLogout = async () => {
+    const success = await logout()
+    if (success) {
+      localStorage.removeItem("conversations")
+      router.push("/auth")
+    }
   }
 
   if (!user) {
@@ -231,7 +250,8 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white overflow-hidden">
+    <AuthGuard>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
@@ -320,7 +340,7 @@ export default function ChatPage() {
                     <p className="text-xs text-white/60">{user.email}</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" onClick={logout} className="text-white/70 hover:text-white">
+                <Button variant="ghost" size="sm" onClick={handleLogout} className="text-white/70 hover:text-white">
                   <LogOut className="h-4 w-4" />
                 </Button>
               </div>
@@ -480,6 +500,6 @@ export default function ChatPage() {
           </div>
         </div>
       </div>
-    </div>
+    </AuthGuard>
   )
 }
