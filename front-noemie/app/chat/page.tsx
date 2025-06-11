@@ -134,7 +134,7 @@ export default function ChatPage() {
         }
       }
       ).then((data) => {
-        console.log("Conversations fetched from API:", data)
+        console.log("Conversations:", data)
         const parsedConversations: Conversation[] = data
         setConversations(parsedConversations)
         if (parsedConversations.length > 0) {
