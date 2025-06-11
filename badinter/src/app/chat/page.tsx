@@ -3,6 +3,7 @@
 import type React from "react"
 import "./chatbot.css"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 import { useState, useEffect, useRef } from "react"
 import { MessageCircle, Plus, Send, User, Gavel, Trash2, LogOut, UserCircle, Loader2, Menu, X } from "lucide-react"
@@ -22,6 +23,7 @@ interface Chat {
 }
 
 export default function ChatbotInterface() {
+  const router = useRouter()
   const [activeChat, setActiveChat] = useState<string>("1")
   const [inputValue, setInputValue] = useState("")
   const [chats, setChats] = useState<Chat[]>([])
@@ -236,8 +238,8 @@ export default function ChatbotInterface() {
   }
 
   const handleLogout = () => {
-    // Logique pour déconnecter l'utilisateur
     console.log("Déconnexion de l'utilisateur")
+    router.push("/")
   }
 
   const toggleSidebar = () => {

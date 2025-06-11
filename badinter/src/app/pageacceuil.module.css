@@ -4,6 +4,10 @@
   --secondary-color: #12006e;
   --text-color: white;
   --button-hover: rgba(255, 255, 255, 0.2);
+  --modal-bg: rgba(0, 0, 0, 0.8);
+  --modal-content-bg: #1a0a7a;
+  --user-message-bg: #2a1a8a;
+  --bot-message-bg: #0c025d;
 }
 
 /* Conteneur principal avec défilement */
@@ -96,10 +100,11 @@
   object-fit: contain;
   max-width: 100%;
   height: auto;
+  margin-bottom: 3rem;
   order: 1;
 }
 
-/* Conteneur pour les boutons d'action - maintenant sous le logo */
+/* Conteneur pour les boutons d'action */
 .buttonContainer {
   display: flex;
   flex-direction: row;
@@ -162,6 +167,84 @@
   margin-bottom: 1.5rem;
 }
 
+/* Démo du chatbot */
+.chatbotDemo {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+  width: 100%;
+}
+
+.chatInterface {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 700px;
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.chatMessage {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.botMessage,
+.userMessage {
+  padding: 1rem;
+  border-radius: 1rem;
+  max-width: 80%;
+}
+
+.botMessage {
+  align-self: flex-start;
+  background-color: var(--bot-message-bg);
+  border-bottom-left-radius: 0;
+}
+
+.userMessage {
+  align-self: flex-end;
+  background-color: var(--user-message-bg);
+  border-bottom-right-radius: 0;
+  margin-left: auto;
+}
+
+.botMessage p,
+.userMessage p {
+  margin: 0;
+  color: var(--text-color);
+}
+
+.chatInputDemo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.chatDemoButton {
+  background-color: var(--text-color);
+  color: var(--primary-color);
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.chatDemoButton:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+}
+
 /* Image décorative */
 .decorativeImage {
   position: fixed;
@@ -173,6 +256,176 @@
   max-width: 25%;
   height: auto;
   pointer-events: none;
+}
+
+/* Styles pour les modals/pop-ups */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--modal-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modalContent {
+  background-color: var(--modal-content-bg);
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideIn 0.3s ease-out;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 1rem;
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: rotate(90deg);
+}
+
+/* Styles pour les formulaires */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  color: var(--text-color);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.input {
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-color);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--text-color);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.submitButton {
+  background-color: var(--text-color);
+  color: var(--primary-color);
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.submitButton:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+}
+
+/* Styles pour basculer entre connexion et inscription */
+.authToggle {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+.authToggleText {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.authToggleButton {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.authToggleButton:hover {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+}
+
+/* Contenu About Me */
+.aboutContent {
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.aboutContent h3 {
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.aboutContent p {
+  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Ajustements responsifs */
@@ -200,22 +453,23 @@
     min-width: 160px;
   }
 
-  .additionalContent {
-    padding: 1rem;
-    margin-top: 2rem;
-  }
-
-  .contentSection {
+  .modalContent {
     padding: 1.5rem;
-    margin-bottom: 2rem;
+    margin: 1rem;
   }
 
-  .sectionTitle {
-    font-size: 1.5rem;
+  .modalTitle {
+    font-size: 1.25rem;
   }
 
-  .sectionText {
-    font-size: 1rem;
+  .chatInterface {
+    padding: 1rem;
+  }
+
+  .botMessage,
+  .userMessage {
+    padding: 0.75rem;
+    max-width: 90%;
   }
 }
 
@@ -248,50 +502,117 @@
     min-width: 140px;
   }
 
+  .modalContent {
+    padding: 1rem;
+    margin: 0.5rem;
+  }
+
   .decorativeImage {
     max-width: 35%;
   }
 
   .sectionTitle {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
+  }
+
+  .chatbotDemo {
+    padding: 1rem;
+  }
+
+  .chatInterface {
+    padding: 0.75rem;
+  }
+
+  .botMessage,
+  .userMessage {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .chatDemoButton {
+    font-size: 0.9rem;
+    padding: 0.875rem 1.5rem;
   }
 }
 
-@media (max-height: 480px) {
-  .navbar {
-    padding: 0.5rem;
-    height: 60px;
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
+  to {
+    opacity: 1;
+  }
+}
 
-  .navLogo {
-    max-height: 40px;
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
-  .navButton {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-  .mainContent {
-    padding: 80px 1rem 2rem;
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
   }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 
-  .badinterLogo {
-    max-width: 30%;
-    max-height: 20%;
-  }
+.contentWrapper {
+  animation: fadeInUp 0.8s ease-out;
+}
 
-  .actionButton {
-    font-size: 0.9rem;
-    padding: 1.5rem 0.75rem;
-    min-width: 140px;
-  }
+.badinterLogo {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
 
-  .decorativeImage {
-    max-width: 35%;
-  }
+.buttonContainer {
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
 
-  .sectionTitle {
-    font-size: 1.25rem;
-  }
+.contentSection {
+  animation: slideInLeft 0.6s ease-out;
+}
+
+/* Effet de défilement fluide */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Barre de défilement personnalisée */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
