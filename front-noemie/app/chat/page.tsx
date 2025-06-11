@@ -22,7 +22,7 @@ interface Message {
 
 interface Conversation {
   id: string
-  title: string
+  topic: string
   messages: Message[]
   createdAt: Date
   updatedAt: Date
@@ -160,7 +160,7 @@ export default function ChatPage() {
   const createNewConversation = () => {
     const newConversation: Conversation = {
       id: Date.now().toString(),
-      title: "Nouvelle conversation",
+      topic: "Nouvelle conversation",
       messages: [
         {
           id: "welcome",
@@ -196,7 +196,7 @@ export default function ChatPage() {
       ...currentConversation,
       messages: [...currentConversation.messages, userMessage],
       title:
-        currentConversation.title === "Nouvelle conversation" ? input.slice(0, 50) + "..." : currentConversation.title,
+        currentConversation.topic === "Nouvelle conversation" ? input.slice(0, 50) + "..." : currentConversation.topic,
       updatedAt: new Date(),
     }
 
@@ -314,6 +314,7 @@ export default function ChatPage() {
             <ScrollArea className="flex-1 p-4">
               <div className="space-y-2">
                 {conversations.map((conversation) => (
+                  console.log("Conversation:", conversation),
                   <div
                     key={conversation.id}
                     className={`group relative p-3 rounded-lg cursor-pointer transition-all ${
@@ -325,9 +326,9 @@ export default function ChatPage() {
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-medium truncate">{conversation.title}</h3>
+                        <h3 className="text-sm font-medium truncate">{conversation.topic}</h3>
                         <p className="text-xs text-white/60 mt-1">
-                          {conversation.updatedAt.toLocaleDateString("fr-FR")}
+                          
                         </p>
                       </div>
                       <Button
