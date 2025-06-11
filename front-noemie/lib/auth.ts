@@ -5,10 +5,11 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 interface User {
-  id: string
   email: string
   role: string
+  id: string
   is_active: boolean
+  created_at?: string
 }
 
 /**
@@ -18,7 +19,7 @@ export async function checkAuth(): Promise<{ isAuthenticated: boolean; user?: Us
   try {
     const response = await fetch(`${API_URL}/auth/me`, {
       method: "GET",
-      credentials: "include", // Important pour envoyer les cookies
+      credentials: "include",
     })
 
     if (response.ok) {
@@ -40,7 +41,7 @@ export async function logout(): Promise<boolean> {
   try {
     const response = await fetch(`${API_URL}/auth/logout`, {
       method: "POST",
-      credentials: "include", // Important pour les cookies
+      credentials: "include", 
     })
 
     if (response.ok) {
@@ -73,7 +74,7 @@ export function getStoredUser() {
 export async function authenticatedFetch(url: string, options: RequestInit = {}) {
   return fetch(url, {
     ...options,
-    credentials: "include", // Toujours inclure les cookies
+    credentials: "include", 
     headers: {
       "Content-Type": "application/json",
       ...options.headers,

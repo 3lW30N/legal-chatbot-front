@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef} from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -11,22 +11,7 @@ import { Send, Bot, User, ArrowLeft, Scale, History, Plus, LogOut, Sparkles, Tra
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { AuthGuard } from "@/components/AuthGuard"
-import { logout } from "@/lib/auth"
-
-interface Message {
-  id: string
-  content: string
-  role: "user" | "assistant"
-  timestamp: Date
-}
-
-interface Conversation {
-  id: string
-  title: string
-  messages: Message[]
-  createdAt: Date
-  updatedAt: Date
-}
+import { logout, checkAuth } from "@/lib/auth"
 
 interface Message {
   id: string
@@ -105,32 +90,68 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Vérifier si l'utilisateur est connecté
-    const userData = localStorage.getItem("user")
-    if (!userData) {
-      router.push("/auth")
-      return
+    // Vérifier si l'utilisateur est connecté via les cookies httpOnly
+    const verifyAuth = async () => {
+      const { isAuthenticated, user: authUser } = await checkAuth()
+      if (!isAuthenticated) {
+        router.push("/auth")
+        return
+      }
+    
+      if (authUser) {
+        const userForComponent = {
+          name: authUser.email.split('@')[0],
+          email: authUser.email
+        }
+        setUser(userForComponent)
+        // synchro avec localStorage pour affichage rapide
+        localStorage.setItem("user", JSON.stringify(userForComponent))
+      }
     }
-    setUser(JSON.parse(userData))
-
+    
+    verifyAuth()
+    
     // Charger les conversations sauvegardées
     const savedConversations = localStorage.getItem("conversations")
     if (savedConversations) {
-      const parsed = JSON.parse(savedConversations).map((conv: Conversation) => ({
-        ...conv,
-        createdAt: new Date(conv.createdAt),
-        updatedAt: new Date(conv.updatedAt),
-        messages: conv.messages.map((msg: Message) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp),
-        })),
-      }))
-      setConversations(parsed)
+      
     }
 
-    // Créer une nouvelle conversation par défaut
-    createNewConversation()
+    // Créer une nouvelle conversation par défaut seulement si l'utilisateur est connecté
+    // Cette partie sera exécutée après la vérification d'auth
   }, [router])
+
+  useEffect(() => {
+    const data = fetch(process.env.NEXT_PUBLIC_API_URL + "/chat", {
+        method: "GET",
+        credentials: "include",
+      })
+      data.then((data) => {
+        if (data.ok) {
+          return data.json()
+        } else {
+          throw new Error("Failed to fetch conversations")
+        }
+      }
+      ).then((data) => {
+        console.log("Conversations fetched from API:", data)
+        const parsedConversations: Conversation[] = data
+        setConversations(parsedConversations)
+        if (parsedConversations.length > 0) {
+          setCurrentConversation(parsedConversations[0])
+        } else {
+          createNewConversation()
+        }
+      }
+      )
+  },[])
+
+  // Créer une nouvelle conversation quand l'utilisateur est défini
+  useEffect(() => {
+    if (user && conversations.length === 0) {
+      createNewConversation()
+    }
+  }, [user, conversations.length])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -499,6 +520,7 @@ export default function ChatPage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </AuthGuard>
   )
