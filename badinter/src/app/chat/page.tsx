@@ -120,63 +120,87 @@ export default function ChatbotInterface() {
     return messages.length === 0 || messages[messages.length - 1].role === "assistant"
   }
 
-  const handleSendMessage = () => {
-    if (!inputValue.trim() || !canSendMessage()) return
+const API_key = "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";
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      content: inputValue,
-      role: "user",
+async function request(message: string): Promise<string> {
+  const response = await fetch(
+    "https://api.groq.com/openai/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${API_key}`,
+      },
+      body: JSON.stringify({
+        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        messages: [
+          {
+            role: "user",
+            content: inputValue,
+          },
+        ],
+      }),
+    }
+  )
+
+  const data = await response.json()
+  return data.choices?.[0]?.message?.content || "Erreur : aucune réponse reçue"
+}
+const handleSendMessage = async () => {
+  if (!inputValue.trim() || !canSendMessage()) return
+
+  const userMessage: Message = {
+    id: Date.now().toString(),
+    content: inputValue,
+    role: "user",
+    timestamp: new Date(),
+  }
+
+  setChats((prevChats) =>
+    prevChats.map((chat) =>
+      chat.id === activeChat
+        ? {
+            ...chat,
+            messages: [...chat.messages, userMessage],
+            lastUpdated: new Date(),
+          }
+        : chat
+    )
+  )
+
+  setInputValue("")
+  setIsBotResponding(true)
+  setShouldAutoScroll(true)
+  setIsUserScrolling(false)
+
+  try {
+    const botReply = await request(userMessage.content)
+
+    const botMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      content: botReply,
+      role: "assistant",
       timestamp: new Date(),
     }
 
-    setChats((prevChats) => {
-      return prevChats.map((chat) => {
-        if (chat.id === activeChat) {
-          return {
-            ...chat,
-            messages: [...chat.messages, newMessage],
-            lastUpdated: new Date(),
-          }
-        }
-        return chat
-      })
-    })
-
-    setInputValue("")
-    setIsBotResponding(true)
-
-    // S'assurer que le défilement automatique est activé pour les nouveaux messages
-    setShouldAutoScroll(true)
-    setIsUserScrolling(false)
-
-    // Simuler une réponse du bot après un délai
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        content: "Merci pour votre message ! Je suis là pour vous aider avec toutes vos questions.",
-        role: "assistant",
-        timestamp: new Date(),
-      }
-
-      setChats((prevChats) => {
-        return prevChats.map((chat) => {
-          if (chat.id === activeChat) {
-            return {
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === activeChat
+          ? {
               ...chat,
-              messages: [...chat.messages, botResponse],
+              messages: [...chat.messages, botMessage],
               lastUpdated: new Date(),
             }
-          }
-          return chat
-        })
-      })
-
-      setIsBotResponding(false)
-
-      // Le focus sera automatiquement mis sur l'input grâce à l'useEffect qui surveille isBotResponding
-    }, 2000) // Délai plus long pour mieux voir l'effet
+          : chat
+      )
+    )
+  } catch (err) {
+    console.error("Erreur de l'API :", err)
+  } finally {
+    setIsBotResponding(false)
   }
+}
+
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -310,7 +334,7 @@ export default function ChatbotInterface() {
             </button>
             <div className="bot-avatar">
               <Image
-                src="/logochatbot.png"
+                src="/cb.png"
                 alt="logo "
                 width={400}
                 height={200}
@@ -348,7 +372,14 @@ export default function ChatbotInterface() {
                 <div key={message.id} className={`message ${message.role}`}>
                   {message.role === "assistant" && (
                     <div className="message-avatar assistant">
-                      <Gavel className="avatar-icon" />
+                      <Image
+                        src="/cb.png"
+                        alt="logo "
+                        width={400}
+                        height={200}
+                        priority
+                        className="bot-icon"
+                      />
                     </div>
                   )}
 
