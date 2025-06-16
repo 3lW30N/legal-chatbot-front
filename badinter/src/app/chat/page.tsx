@@ -31,10 +31,20 @@ export default function ChatbotInterface() {
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true)
   const [isBotResponding, setIsBotResponding] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
+  const [userProfile, setUserProfile] = useState({
+    firstName: "Minh",
+    lastName: "NGUYEN",
+    email: "minh804.nguyen@gmail.com",
+    phone: "+33 7 77 94 78 75",
+
+  })
+
 
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  
 
   useEffect(() => {
     if (chats.length === 0) {
@@ -259,6 +269,7 @@ const handleSendMessage = async () => {
   const handleProfile = () => {
     // Logique pour ouvrir le profil utilisateur
     console.log("Ouverture du profil utilisateur")
+    setIsProfileModalOpen(true)
   }
 
   const handleLogout = () => {
@@ -272,6 +283,17 @@ const handleSendMessage = async () => {
 
   // Vérifier si l'input doit être désactivé
   const isInputDisabled = !canSendMessage()
+
+  const handleCloseProfile = () => {
+    setIsProfileModalOpen(false)
+  }
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log("Profil sauvegardé:", userProfile)
+    setIsProfileModalOpen(false)
+    // Ici vous pouvez ajouter la logique pour sauvegarder en base de données
+  }
 
   return (
     <div className="chatbot-container">
@@ -446,6 +468,77 @@ const handleSendMessage = async () => {
           </div>
         </div>
       </div>
+      {isProfileModalOpen && (
+        <div className="modalOverlay" onClick={handleCloseProfile}>
+          <div className="modalContent" onClick={(e) => e.stopPropagation()}>
+            <div className="modalHeader">
+              <h2 className="modalTitle">Mon Profil</h2>
+              <button className="closeButton" onClick={handleCloseProfile}>
+                <X className="icon" />
+              </button>
+            </div>
+
+            <form className="profileForm" onSubmit={handleSaveProfile}>
+              <div className="profileSection">
+                <h3 className="sectionTitle">Informations personnelles</h3>
+
+                <div className="formRow">
+                  <div className="formGroup">
+                    <label className="label" htmlFor="firstName">
+                      Prénom
+                    </label>
+                    <input
+                      className="input"
+                      type="text"
+                      id="firstName"
+                      value={userProfile.firstName}
+                      onChange={(e) => setUserProfile({ ...userProfile, firstName: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="formGroup">
+                    <label className="label" htmlFor="lastName">
+                      Nom
+                    </label>
+                    <input
+                      className="input"
+                      type="text"
+                      id="lastName"
+                      value={userProfile.lastName}
+                      onChange={(e) => setUserProfile({ ...userProfile, lastName: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="formGroup">
+                  <label className="label" htmlFor="email">
+                    Email
+                  </label>
+                  <input
+                    className="input"
+                    type="email"
+                    id="email"
+                    value={userProfile.email}
+                    onChange={(e) => setUserProfile({ ...userProfile, email: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="profileActions">
+                <button type="button" className="cancelButton" onClick={handleCloseProfile}>
+                  Annuler
+                </button>
+                <button type="submit" className="saveButton">
+                  Sauvegarder
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
+
