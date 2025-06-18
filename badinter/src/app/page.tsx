@@ -1,43 +1,45 @@
 "use client"
 
 import type React from "react"
-
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/context/AuthContext"
+import { Loader2 } from "lucide-react"
 import styles from "./pageacceuil.module.css"
 
 export default function Home() {
-  // États pour gérer l'ouverture/fermeture des modals
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const { isAuthenticated, isLoading } = useAuth()
+  const router = useRouter()
   const [isContactModalOpen, setIsContactModalOpen] = useState(false)
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
 
-  // État pour basculer entre connexion et inscription dans le même modal
-  const [authMode, setAuthMode] = useState<"login" | "signup">("login")
+  // Rediriger vers le chat si l'utilisateur est déjà connecté
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      router.push("/chat")
+    }
+  }, [isAuthenticated, isLoading, router])
+
+  // Afficher un loader pendant la vérification de l'authentification
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
 
   // Fonction pour fermer tous les modals
   const closeAllModals = () => {
-    setIsAuthModalOpen(false)
     setIsContactModalOpen(false)
     setIsAboutModalOpen(false)
-  }
-
-  // Fonction pour ouvrir le modal d'authentification
-  const openAuthModal = (mode: "login" | "signup") => {
-    setAuthMode(mode)
-    setIsAuthModalOpen(true)
-  }
-
-  // Fonction pour basculer entre connexion et inscription
-  const toggleAuthMode = () => {
-    setAuthMode(authMode === "login" ? "signup" : "login")
   }
 
   // Fonction pour gérer la soumission des formulaires
   const handleFormSubmit = (e: React.FormEvent, formType: string) => {
     e.preventDefault()
     console.log(`Formulaire ${formType} soumis`)
-    // Ici vous pouvez ajouter la logique de traitement des formulaires
     closeAllModals()
   }
 
@@ -74,11 +76,11 @@ export default function Home() {
 
           {/* Boutons d'action positionnés sous le logo Badinter */}
           <div className={styles.buttonContainer}>
-            <button className={styles.actionButton} onClick={() => openAuthModal("login")}>
+            <button className={styles.actionButton} onClick={() => router.push("/auth")}>
               Se connecter
             </button>
-            <button className={styles.actionButton} onClick={() => openAuthModal("signup")}>
-              S'inscrire
+            <button className={styles.actionButton} onClick={() => router.push("/auth")}>
+              Commencer
             </button>
           </div>
         </div>
@@ -121,7 +123,7 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.chatInputDemo}>
-                <button className={styles.chatDemoButton} onClick={() => openAuthModal("signup")}>
+                <button className={styles.chatDemoButton} onClick={() => router.push("/auth")}>
                   Créez un compte pour discuter avec Badinter
                 </button>
               </div>
@@ -147,134 +149,6 @@ export default function Home() {
         priority
         className={styles.decorativeImage}
       />
-
-      {/* Modal d'authentification (connexion/inscription) */}
-      {isAuthModalOpen && (
-        <div className={styles.modalOverlay} onClick={closeAllModals}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>{authMode === "login" ? "Se connecter" : "S'inscrire"}</h2>
-              <button className={styles.closeButton} onClick={closeAllModals}>
-                ×
-              </button>
-            </div>
-
-            {/* Formulaire de connexion */}
-            {authMode === "login" && (
-              <>
-                <form className={styles.form} onSubmit={(e) => handleFormSubmit(e, "connexion")}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label} htmlFor="email">
-                      Email
-                    </label>
-                    <input
-                      className={styles.input}
-                      type="email"
-                      id="email"
-                      placeholder="Votre adresse email"
-                      required
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label} htmlFor="password">
-                      Mot de passe
-                    </label>
-                    <input
-                      className={styles.input}
-                      type="password"
-                      id="password"
-                      placeholder="Votre mot de passe"
-                      required
-                    />
-                  </div>
-                  <button type="submit" className={styles.submitButton}>
-                    Se connecter
-                  </button>
-                </form>
-
-                {/* Lien pour basculer vers l'inscription */}
-                <div className={styles.authToggle}>
-                  <p className={styles.authToggleText}>
-                    Pas encore de compte ?{" "}
-                    <button className={styles.authToggleButton} onClick={toggleAuthMode}>
-                      S'inscrire ici
-                    </button>
-                  </p>
-                </div>
-              </>
-            )}
-
-            {/* Formulaire d'inscription */}
-            {authMode === "signup" && (
-              <>
-                <form className={styles.form} onSubmit={(e) => handleFormSubmit(e, "inscription")}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label} htmlFor="firstName">
-                      Prénom
-                    </label>
-                    <input className={styles.input} type="text" id="firstName" placeholder="Votre prénom" required />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label} htmlFor="lastName">
-                      Nom
-                    </label>
-                    <input className={styles.input} type="text" id="lastName" placeholder="Votre nom" required />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label} htmlFor="signupEmail">
-                      Email
-                    </label>
-                    <input
-                      className={styles.input}
-                      type="email"
-                      id="signupEmail"
-                      placeholder="Votre adresse email"
-                      required
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label} htmlFor="signupPassword">
-                      Mot de passe
-                    </label>
-                    <input
-                      className={styles.input}
-                      type="password"
-                      id="signupPassword"
-                      placeholder="Choisissez un mot de passe"
-                      required
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label} htmlFor="confirmPassword">
-                      Confirmer le mot de passe
-                    </label>
-                    <input
-                      className={styles.input}
-                      type="password"
-                      id="confirmPassword"
-                      placeholder="Confirmez votre mot de passe"
-                      required
-                    />
-                  </div>
-                  <button type="submit" className={styles.submitButton}>
-                    S'inscrire
-                  </button>
-                </form>
-
-                {/* Lien pour basculer vers la connexion */}
-                <div className={styles.authToggle}>
-                  <p className={styles.authToggleText}>
-                    Déjà un compte ?{" "}
-                    <button className={styles.authToggleButton} onClick={toggleAuthMode}>
-                      Se connecter ici
-                    </button>
-                  </p>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Modal de contact */}
       {isContactModalOpen && (
