@@ -1,0 +1,214 @@
+/* Animations personnalisées pour le chatbot */
+
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+.typewriter-text {
+  overflow: hidden;
+  border-right: 2px solid;
+  animation: typewriter 1s steps(20, end), blink 0.5s step-end infinite alternate;
+}
+
+/* Animation pour l'apparition des sources */
+@keyframes slideInFromTop {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-sources {
+  animation: slideInFromTop 0.5s ease-out;
+}
+
+/* Animation des points de loading améliorée */
+@keyframes wave {
+  0%, 60%, 100% {
+    transform: initial;
+    opacity: 1;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 0.7;
+  }
+}
+
+.loading-dots > div:nth-child(1) {
+  animation: wave 1.2s infinite;
+  animation-delay: 0s;
+}
+
+.loading-dots > div:nth-child(2) {
+  animation: wave 1.2s infinite;
+  animation-delay: 0.2s;
+}
+
+.loading-dots > div:nth-child(3) {
+  animation: wave 1.2s infinite;
+  animation-delay: 0.4s;
+}
+
+/* Gradient animé pour l'avatar du bot */
+@keyframes gradient-pulse {
+  0%, 100% {
+    background-position: 0% 50%;
+    filter: brightness(1);
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: brightness(1.1);
+  }
+}
+
+.bot-avatar-gradient {
+  background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe);
+  background-size: 400% 400%;
+  animation: gradient-pulse 4s ease infinite;
+  box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Amélioration de l'apparence des sources */
+.source-item {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.source-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Animation pour l'indicateur de typing du bot */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    opacity: 0.7;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+}
+
+.bot-typing-indicator {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Scroll bar personnalisée */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2));
+}
+
+/* Animation d'apparition des messages */
+@keyframes messageSlideIn {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.message-animation {
+  animation: messageSlideIn 0.3s ease-out;
+}
+
+/* Amélioration de l'effet typewriter */
+.typewriter-cursor {
+  animation: blink 1s infinite;
+  background: linear-gradient(to right, #667eea, #764ba2);
+  border-radius: 1px;
+}
+
+/* Effet de brillance sur les liens */
+.source-link {
+  position: relative;
+  overflow: hidden;
+}
+
+.source-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.source-link:hover::before {
+  left: 100%;
+}
+
+/* Animation des emojis */
+@keyframes bounce-emoji {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.emoji-bounce {
+  animation: bounce-emoji 2s ease-in-out infinite;
+}
+
+/* Style pour les messages avec sources */
+.message-with-sources {
+  position: relative;
+}
+
+.message-with-sources::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+}

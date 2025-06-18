@@ -1,10 +1,12 @@
 export interface User {
-  id: string
+  id?: string
+  _id?: string
   email: string
   name?: string
   is_active: boolean
   role: string
   created_at: string
+  updated_at?: string | null
 }
 
 export interface Chat {
@@ -20,13 +22,33 @@ export interface Attachment {
   url: string 
 }
 
+export interface Source {
+  title: string
+  url?: string
+  excerpt?: string
+  type?: 'document' | 'webpage' | 'article'
+}
+
+export interface BotSource {
+  source: string
+  page?: number
+}
+
+// Interface pour la réponse du chatbot backend
+export interface ChatBotResponse {
+  message_id: string
+  response: [string, Array<[string, number | null]>] // [answer, sources] où sources est une liste de [source, page]
+}
+
 export interface Message {
   _id?: string 
   discussion_id: string
   content: string
   role?: 'user' | 'bot' 
   date_created: Date
-  attachments?: Attachment[] 
+  attachments?: Attachment[]
+  sources?: Source[]
+  botSources?: BotSource[]
 }
 
 export interface MessageCreate {

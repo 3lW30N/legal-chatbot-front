@@ -1,7 +1,7 @@
 /**
  * Utilitaire du chat
  */
-import { Chat, Message, Attachment, MessageCreate, MessageBot ,FileInfo } from "@/lib/types"
+import { Chat, Message, Attachment, MessageCreate, MessageBot, FileInfo, ChatBotResponse } from "@/lib/types"
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 // Envoyer un message
@@ -39,6 +39,8 @@ export async function sendMessage(msg: MessageCreate): Promise<{ message_id: str
 // Créer un nouveau chat
 export async function createChat(userId: string): Promise<Chat> {
     try {
+        console.log("📤 Envoi de la requête createChat pour userId:", userId)
+        
         const response = await fetch(`${API_URL}/chat/`, {
         method: "POST",
         headers: {
@@ -48,15 +50,21 @@ export async function createChat(userId: string): Promise<Chat> {
         credentials: "include", // Pour inclure les cookies httpOnly
         })
     
+        console.log("📥 Réponse createChat status:", response.status)
+        
         if (!response.ok) {
-        throw new Error("Erreur lors de la création du chat")
+            const errorData = await response.text()
+            console.error("❌ Erreur createChat response:", errorData)
+            throw new Error(`Erreur lors de la création du chat: ${response.status} - ${errorData}`)
         }
     
         const data = await response.json()
+        console.log("✅ Données createChat reçues:", data)
+        
         // ✅ CORRECTION : Retourner l'objet Chat complet, pas seulement l'ID
         return data // data contient déjà l'objet Chat complet avec id, user_id, topic, etc.
     } catch (error) {
-        console.error("Erreur lors de la création du chat:", error)
+        console.error("❌ Erreur lors de la création du chat:", error)
         throw error
     }
 }
@@ -297,7 +305,11 @@ export async function cleanupOrphanedFiles(): Promise<{ deleted_count: number; m
 }
 
 // Fonction de la réponse du chatbot
-export async function chatBot(msg: MessageCreate): Promise<{ bot_response?: string }> {
+export async function chatBot(msg: MessageCreate): Promise<{ 
+  message_id?: string
+  response?: string
+  sources?: Array<{source: string, page?: number}>
+}> {
   try{
     const message: MessageBot={
       content:msg.content,
@@ -325,9 +337,76 @@ export async function chatBot(msg: MessageCreate): Promise<{ bot_response?: stri
       throw new Error(`Erreur chatbot ${response.status}: ${errorData}`)
     }
     
-    // ✅ NOUVEAU : Retourner la réponse du serveur
+    // ✅ NOUVEAU : Traiter la réponse du serveur avec le nouveau format
     const data = await response.json()
     console.log("✅ Données chatbot reçues:", data)
+    
+    // Si la réponse contient un tuple [answer, sources]
+    if (data.response && Array.isArray(data.response)) {
+      const [answer, rawSources] = data.response
+      
+      // Transformer les sources du format [[source, page], ...] vers [{source, page}, ...]
+      const sources = rawSources?.map((sourceItem: any) => ({
+        source: sourceItem[0] || sourceItem.source,
+        page: sourceItem[1] || sourceItem.page
+      })) || []
+      
+      return {
+        message_id: data.message_id,
+        response: answer,
+        sources: sources
+      }
+    }
+    
+    // Si la réponse est une string contenant les sources à la fin (format actuel)
+    if (typeof data.response === 'string') {
+      let response = data.response
+      const sources: Array<{source: string, page?: number}> = []
+      
+      // Méthode plus simple : détecter le début des sources et couper là
+      const sourceStartIndex = response.indexOf('/home/')
+      
+      if (sourceStartIndex !== -1) {
+        console.log("🧹 Début des sources détecté à la position:", sourceStartIndex)
+        
+        // Extraire seulement la partie avant les sources
+        const cleanResponse = response.substring(0, sourceStartIndex).trim()
+        
+        // Extraire la partie sources pour compter
+        const sourcePart = response.substring(sourceStartIndex)
+        console.log("📁 Partie sources:", sourcePart)
+        
+        // Compter le nombre de fichiers .json pour créer des sources génériques
+        const sourceMatches = (sourcePart.match(/\.json/g) || []).length
+        const uniqueSourceCount = Math.min(sourceMatches, 5) // Limiter à 5 sources max
+        
+        // Créer des sources génériques
+        for (let i = 0; i < uniqueSourceCount; i++) {
+          sources.push({
+            source: `Document juridique ${i + 1}`,
+            page: undefined
+          })
+        }
+        
+        console.log("✅ Réponse nettoyée:", cleanResponse)
+        console.log("📚 Sources créées:", sources.length)
+        
+        return {
+          message_id: data.message_id,
+          response: cleanResponse,
+          sources: sources
+        }
+      }
+      
+      // Si pas de sources détectées, retourner la réponse telle quelle
+      return {
+        message_id: data.message_id,
+        response: response.trim(),
+        sources: []
+      }
+    }
+    
+    // Fallback pour les autres formats
     return data
   }catch(err){
     console.error("❌ Erreur chatBot:", err)

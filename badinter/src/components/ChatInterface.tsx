@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext"
 import { createChat, deleteChat, getMessages, sendMessage, uploadFile, loadImageWithAuth, getChats, chatBot } from "@/lib/chat"
 import { Chat, Message, Attachment, MessageCreate } from "@/lib/types"
 import { TypewriterText } from "@/components/TypewriterText"
+import { SourcesDisplay } from "@/components/SourcesDisplay"
 import { AuthGuard } from "@/components/AuthGuard"
 
 export default function ChatInterface() {
@@ -26,6 +27,7 @@ export default function ChatInterface() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [messages, setMessages] = useState<Message[]>([])
   const [typingMessageId, setTypingMessageId] = useState<string | null>(null)
+  const [botSources, setBotSources] = useState<{[messageId: string]: Array<{source: string, page?: number}>}>({})
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const currentConversationRef = useRef<Chat | null>(null)
@@ -99,24 +101,35 @@ export default function ChatInterface() {
 
   // Créer une nouvelle conversation
   const createNewConversation = useCallback(async () => {
-    if (!user?.id) return
+    const userId = user?.id || (user as any)?._id
+    console.log("🔥 BOUTON CLIQUÉ - userId:", userId, "user:", user)
+    
+    if (!userId) {
+      console.log("❌ Pas d'utilisateur connecté pour créer un chat")
+      return
+    }
     
     try {
-      console.log("🆕 Création d'une nouvelle conversation pour:", user.id)
-      const newChat = await createChat(user.id)
+      console.log("🆕 Création d'une nouvelle conversation pour:", userId)
+      const newChat = await createChat(userId)
+      console.log("✅ Chat créé côté backend:", newChat)
+      
       const newConversation: Chat = {
         ...newChat,
         created_at: new Date(newChat.created_at),
         updated_at: new Date(newChat.updated_at)
       }
       
+      console.log("📝 Nouvelle conversation formatée:", newConversation)
       setConversations((prev) => [newConversation, ...prev])
       setCurrentConversation(newConversation)
       setMessages([])
+      console.log("✅ Nouvelle conversation définie comme active")
     } catch (error) {
-      console.error("Erreur lors de la création de la conversation:", error)
+      console.error("❌ Erreur lors de la création de la conversation:", error)
+      alert("Erreur lors de la création d'une nouvelle conversation. Veuillez réessayer.")
     }
-  }, [user?.email])
+  }, [user?.id, user?.email])
 
   // Supprimer une conversation
   const handleDeleteConversation = useCallback(async (chatId: string) => {
@@ -210,15 +223,31 @@ export default function ChatInterface() {
         console.log("🤖 Tentative d'obtenir la réponse du bot...")
         const botResponse = await chatBot(messageData)
         console.log("✅ Réponse du bot générée:", botResponse)
-        const latestMessages = await getMessages(currentConversation.id)
-        setMessages(latestMessages)
         
-        const lastBotMessage = latestMessages
-          .filter(msg => msg.role === 'bot')
-          .sort((a, b) => new Date(b.date_created).getTime() - new Date(a.date_created).getTime())[0]
+        // Créer le message bot avec la réponse nettoyée
+        const cleanBotMessage: Message = {
+          _id: botResponse.message_id,
+          discussion_id: currentConversation.id,
+          content: botResponse.response || "Erreur dans la réponse",
+          role: "bot",
+          date_created: new Date(),
+        }
         
-        if (lastBotMessage?._id) {
-          setTypingMessageId(lastBotMessage._id)
+        // Ajouter le message bot nettoyé directement
+        setMessages(prev => [...prev, cleanBotMessage])
+        
+        // Stocker les sources si disponibles
+        if (botResponse.sources && botResponse.sources.length > 0) {
+          console.log("📚 Sources reçues:", botResponse.sources)
+          setBotSources(prev => ({
+            ...prev,
+            [cleanBotMessage._id!]: botResponse.sources!
+          }))
+        }
+        
+        // Démarrer l'effet typewriter
+        if (cleanBotMessage._id) {
+          setTypingMessageId(cleanBotMessage._id)
         }
         
         scrollToBottom(200)
@@ -674,7 +703,7 @@ export default function ChatInterface() {
                               <div className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-4 py-3 rounded-2xl rounded-bl-sm">
                                 {message.role === 'bot' && typingMessageId === message._id ? (
                                   <TypewriterText
-                                    text={message.content}
+                                    text={String(message.content || "")}
                                     speed={30}
                                     className="text-sm leading-relaxed"
                                     onComplete={() => {
@@ -726,6 +755,13 @@ export default function ChatInterface() {
                                   {new Date(message.date_created).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </p>
                               </div>
+                              
+                              {/* Affichage des sources du bot */}
+                              {message.role === 'bot' && message._id && botSources[message._id] && (
+                                <div className="mt-3">
+                                  <SourcesDisplay sources={botSources[message._id]} />
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}
