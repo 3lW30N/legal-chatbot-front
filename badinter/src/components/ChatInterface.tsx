@@ -181,6 +181,10 @@ export default function ChatInterface() {
   // Sélectionner une conversation
   const selectConversation = useCallback((conversation: Chat) => {
     setCurrentConversation(conversation)
+    // Fermer la sidebar sur mobile après sélection
+    if (window.innerWidth < 1024) { // lg breakpoint
+      setSidebarOpen(false)
+    }
   }, [])
 
   // Envoyer un message
@@ -520,11 +524,23 @@ export default function ChatInterface() {
         </div>
 
         <div className="relative z-10 flex h-screen">
+          {/* Overlay pour mobile */}
+          {sidebarOpen && (
+            <div 
+              className="fixed inset-0 bg-black/50 z-10 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+          
           {/* Sidebar */}
-          <div className={`${sidebarOpen ? "w-80" : "w-0"} transition-all duration-300 overflow-hidden`}>
+          <div className={`${
+            sidebarOpen ? "w-80 lg:w-80 md:w-72 sm:w-64" : "w-0"
+          } transition-all duration-300 overflow-hidden ${
+            sidebarOpen ? 'fixed lg:relative' : ''
+          } z-20 lg:z-auto`}>
             <div className="h-full bg-white/10 backdrop-blur-md border-r border-white/20 flex flex-col">
               {/* Header */}
-              <div className="p-6 border-b border-white/20">
+              <div className="p-4 lg:p-6 border-b border-white/20">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
                     <Image
@@ -555,12 +571,12 @@ export default function ChatInterface() {
               </div>
 
               {/* Conversations */}
-              <div className="flex-1 p-4 overflow-y-auto">
-                <div className="space-y-2">
+              <div className="flex-1 p-2 sm:p-4 overflow-y-auto">
+                <div className="space-y-1 sm:space-y-2">
                   {conversations.map((conversation) => (
                     <div
                       key={conversation.id}
-                      className={`group relative p-3 rounded-lg cursor-pointer transition-all ${
+                      className={`group relative p-2 sm:p-3 rounded-lg cursor-pointer transition-all ${
                         currentConversation?.id === conversation.id
                           ? "bg-white/20 border border-white/30"
                           : "hover:bg-white/10"
@@ -569,7 +585,7 @@ export default function ChatInterface() {
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-medium truncate">{conversation.topic || "Nouvelle conversation"}</h3>
+                          <h3 className="text-xs sm:text-sm font-medium truncate">{conversation.topic || "Nouvelle conversation"}</h3>
                           <p className="text-xs text-white/60 mt-1">
                             {new Date(conversation.created_at).toLocaleDateString()}
                           </p>
@@ -577,7 +593,7 @@ export default function ChatInterface() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-white/60 hover:text-red-400"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-white/60 hover:text-red-400 h-6 w-6 p-1"
                           onClick={(e) => {
                             e.stopPropagation()
                             handleDeleteConversation(conversation.id)
@@ -614,7 +630,7 @@ export default function ChatInterface() {
           {/* Main Chat Area */}
           <div className="flex-1 flex flex-col">
             {/* Header */}
-            <header className="bg-white/10 backdrop-blur-md border-b border-white/20 p-4">
+            <header className="bg-white/10 backdrop-blur-md border-b border-white/20 p-2 lg:p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   {!sidebarOpen && (
@@ -622,20 +638,25 @@ export default function ChatInterface() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setSidebarOpen(true)}
-                      className="mr-4 text-white/70 hover:text-white"
+                      className="mr-2 lg:mr-4 text-white/70 hover:text-white"
                     >
                       <Menu className="h-4 w-4" />
                     </Button>
                   )}
-                  <Button variant="ghost" size="sm" onClick={() => router.push("/")} className="mr-4 text-white/70 hover:text-white">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Retour
+                  <Button variant="ghost" size="sm" onClick={() => router.push("/")} className="mr-2 lg:mr-4 text-white/70 hover:text-white">
+                    <ArrowLeft className="h-4 w-4 mr-1 lg:mr-2" />
+                    <span className="hidden sm:inline">Retour</span>
                   </Button>
                   <div className="flex items-center">
-                    <Bot className="h-5 w-5 mr-2 text-blue-400" />
-                    <h1 className="text-lg font-semibold">Assistant Juridique Badinter</h1>
-                    <div className="ml-3 px-2 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-full text-xs">
-                      En ligne
+                    <Bot className="h-4 w-4 lg:h-5 lg:w-5 mr-1 lg:mr-2 text-blue-400" />
+                    <h1 className="text-sm lg:text-lg font-semibold truncate max-w-[150px] sm:max-w-none">
+                      <span className="hidden sm:inline">Assistant Juridique</span>
+                      <span className="sm:hidden">Badinter</span>
+                      <span className="hidden lg:inline"> Badinter</span>
+                    </h1>
+                    <div className="ml-2 lg:ml-3 px-1 lg:px-2 py-0.5 lg:py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-full text-xs">
+                      <span className="hidden sm:inline">En ligne</span>
+                      <span className="sm:hidden">●</span>
                     </div>
                   </div>
                 </div>
@@ -644,25 +665,25 @@ export default function ChatInterface() {
 
             {/* Chat Messages */}
             <div className="flex-1 overflow-hidden">
-              <div className="h-full p-6 overflow-y-auto">
-                <div className="max-w-4xl mx-auto space-y-6">
+              <div className="h-full p-2 sm:p-4 lg:p-6 overflow-y-auto">
+                <div className="max-w-4xl mx-auto space-y-4 lg:space-y-6">
                   {messages.length === 0 ? (
-                    <div className="text-center text-white/60 py-12">
-                      <Bot className="h-16 w-16 mx-auto mb-4 text-blue-400/50" />
-                      <h3 className="text-lg font-medium mb-2">
+                    <div className="text-center text-white/60 py-8 lg:py-12">
+                      <Bot className="h-12 w-12 lg:h-16 lg:w-16 mx-auto mb-3 lg:mb-4 text-blue-400/50" />
+                      <h3 className="text-base lg:text-lg font-medium mb-2">
                         {currentConversation?.topic || "Nouvelle conversation"}
                       </h3>
-                      <p className="text-sm">
+                      <p className="text-xs lg:text-sm">
                         Posez votre première question pour commencer
                       </p>
                     </div>
                   ) : (
                     messages.map((message, index) => (
-                      <div key={message._id || `temp-${index}`} className="w-full mb-4">
+                      <div key={message._id || `temp-${index}`} className="w-full mb-3 lg:mb-4">
                         {message.role === 'user' ? (
                           <div className="flex justify-end">
-                            <div className="max-w-[80%] lg:max-w-[70%]">
-                              <div className="bg-blue-600 text-white px-4 py-3 rounded-2xl rounded-br-sm">
+                            <div className="max-w-[85%] sm:max-w-[80%] lg:max-w-[70%]">
+                              <div className="bg-blue-600 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-2xl rounded-br-sm">
                                 <p className="text-sm leading-relaxed">{message.content}</p>
                                 
                                 {message.attachments && message.attachments.length > 0 && (
@@ -709,14 +730,14 @@ export default function ChatInterface() {
                           </div>
                         ) : (
                           <div className="flex justify-start">
-                            <div className="flex items-start space-x-3 max-w-[80%] lg:max-w-[70%]">
+                            <div className="flex items-start space-x-2 sm:space-x-3 max-w-[85%] sm:max-w-[80%] lg:max-w-[70%]">
                               <div className="flex-shrink-0 mt-1">
-                                <div className="h-8 w-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center">
-                                  <Bot className="h-4 w-4" />
+                                <div className="h-6 w-6 sm:h-8 sm:w-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center">
+                                  <Bot className="h-3 w-3 sm:h-4 sm:w-4" />
                                 </div>
                               </div>
                               
-                              <div className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-4 py-3 rounded-2xl rounded-bl-sm">
+                              <div className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-2xl rounded-bl-sm">
                                 {message.role === 'bot' && typingMessageId === message._id ? (
                                   <TypewriterText
                                     text={String(message.content || "")}
@@ -818,30 +839,30 @@ export default function ChatInterface() {
             </div>
 
             {/* Input Area */}
-            <div className="p-6 bg-white/5 backdrop-blur-md border-t border-white/20">
+            <div className="p-3 sm:p-4 lg:p-6 bg-white/5 backdrop-blur-md border-t border-white/20">
               <div className="max-w-4xl mx-auto">
                 {/* Attachments Preview */}
                 {attachments.length > 0 && (
-                  <div className="mb-4">
+                  <div className="mb-3 lg:mb-4">
                     <div className="flex flex-wrap gap-2">
                       {attachments.map((attachment, index) => (
                         <div
                           key={index}
-                          className="flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-3 py-2 max-w-[250px]"
+                          className="flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-2 sm:px-3 py-1 sm:py-2 max-w-[180px] sm:max-w-[250px]"
                         >
                           <div className="flex-shrink-0">
                             {getFileIcon(attachment.filename)}
                           </div>
-                          <span className="text-sm text-white truncate flex-1">
+                          <span className="text-xs sm:text-sm text-white truncate flex-1">
                             {attachment.filename}
                           </span>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => removeAttachment(index)}
-                            className="h-5 w-5 p-0 text-white/60 hover:text-red-400 flex-shrink-0"
+                            className="h-4 w-4 sm:h-5 sm:w-5 p-0 text-white/60 hover:text-red-400 flex-shrink-0"
                           >
-                            <X className="h-3 w-3" />
+                            <X className="h-2 w-2 sm:h-3 sm:w-3" />
                           </Button>
                         </div>
                       ))}
@@ -849,18 +870,18 @@ export default function ChatInterface() {
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="flex space-x-4">
+                <form onSubmit={handleSubmit} className="flex space-x-2 sm:space-x-4">
                   <div className="flex-1 relative">
                     <Input
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder="Posez votre question juridique..."
                       disabled={isLoading}
-                      className="bg-white/10 backdrop-blur-md border-white/20 text-white placeholder:text-white/60 pr-24 py-6 text-lg rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                      className="bg-white/10 backdrop-blur-md border-white/20 text-white placeholder:text-white/60 pr-16 sm:pr-24 py-4 sm:py-6 text-sm sm:text-lg rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     />
                     
                     {/* Attachment Button */}
-                    <div className="absolute right-14 top-1/2 transform -translate-y-1/2">
+                    <div className="absolute right-8 sm:right-14 top-1/2 transform -translate-y-1/2">
                       <input
                         type="file"
                         multiple
@@ -875,12 +896,12 @@ export default function ChatInterface() {
                         size="sm"
                         onClick={() => document.getElementById('file-upload')?.click()}
                         disabled={isUploading}
-                        className="h-8 w-8 p-0 text-white/60 hover:text-white hover:bg-white/10 rounded-lg disabled:opacity-50"
+                        className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-white/60 hover:text-white hover:bg-white/10 rounded-lg disabled:opacity-50"
                       >
                         {isUploading ? (
-                          <div className="w-4 h-4 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
+                          <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
                         ) : (
-                          <Paperclip className="h-4 w-4" />
+                          <Paperclip className="h-3 w-3 sm:h-4 sm:w-4" />
                         )}
                       </Button>
                     </div>
@@ -888,7 +909,7 @@ export default function ChatInterface() {
                     <Button
                       type="submit"
                       disabled={isLoading || (!input.trim() && attachments.length === 0)}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-xl"
+                      className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-xl h-8 w-8 sm:h-auto sm:w-auto sm:px-3 sm:py-2 p-1 sm:p-2"
                     >
                       <Send className="h-4 w-4" />
                     </Button>
@@ -896,21 +917,22 @@ export default function ChatInterface() {
                 </form>
 
                 {/* Quick Questions */}
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-3 sm:mt-4 flex flex-wrap gap-1 sm:gap-2">
                   {[
-                    { id: "statuts", text: "Comment créer les statuts ?" },
-                    { id: "tva", text: "Règles de TVA ?" },
-                    { id: "membres", text: "Gestion des membres ?" },
-                    { id: "ag", text: "Organiser une AG ?" },
+                    { id: "statuts", text: "Comment créer les statuts ?", short: "Statuts" },
+                    { id: "tva", text: "Règles de TVA ?", short: "TVA" },
+                    { id: "membres", text: "Gestion des membres ?", short: "Membres" },
+                    { id: "ag", text: "Organiser une AG ?", short: "AG" },
                   ].map((question) => (
                     <Button
                       key={question.id}
                       variant="outline"
                       size="sm"
-                      className="border-white/50 text-white bg-white/10 hover:bg-white/20 hover:text-white hover:border-white/70 rounded-full"
+                      className="border-white/50 text-white bg-white/10 hover:bg-white/20 hover:text-white hover:border-white/70 rounded-full text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 h-auto"
                       onClick={() => setInput(question.text)}
                     >
-                      {question.text}
+                      <span className="hidden sm:inline">{question.text}</span>
+                      <span className="sm:hidden">{question.short}</span>
                     </Button>
                   ))}
                 </div>
