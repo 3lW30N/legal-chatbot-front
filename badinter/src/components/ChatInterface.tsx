@@ -43,52 +43,58 @@ export default function ChatInterface() {
     currentConversationRef.current = currentConversation
   }, [currentConversation])
 
-  // Chargement des conversations
-  useEffect(() => {
-    const fetchChats = async () => {
-      if (!user) return
-      
-      try {
-        const data = await getChats()
-        const parsedConversations: Chat[] = data.map((chat: Chat) => ({
-          ...chat,
-          created_at: new Date(chat.created_at),
-          updated_at: new Date(chat.updated_at)
-        })).filter(chat => chat.id)
+  // Fonction pour recharger les conversations
+  const fetchChats = useCallback(async () => {
+    if (!user) return
+    
+    try {
+      const data = await getChats()
+      const parsedConversations: Chat[] = data.map((chat: Chat) => ({
+        ...chat,
+        created_at: new Date(chat.created_at),
+        updated_at: new Date(chat.updated_at)
+      })).filter(chat => chat.id)
 
-        const uniqueConversations = parsedConversations.filter((conversation, index, self) => 
-          index === self.findIndex(c => c.id === conversation.id)
-        )
-        
-        setConversations(uniqueConversations)
-        if (uniqueConversations.length > 0 && !currentConversationRef.current) {
-          setCurrentConversation(uniqueConversations[0])
-        }
-      } catch (error) {
-        console.error("Erreur lors du chargement des conversations:", error)
-        if (user) {
-          const newChat = async () => {
-            try {
-              console.log("🆕 Création d'un nouveau chat pour l'utilisateur:", user.id)
-              const newConversation = await createChat(user.id)
-              const chatWithDates: Chat = {
-                ...newConversation,
-                created_at: new Date(newConversation.created_at),
-                updated_at: new Date(newConversation.updated_at)
-              }
-              setCurrentConversation(chatWithDates)
-              setConversations([chatWithDates])
-            } catch (createError) {
-              console.error("Erreur lors de la création d'une nouvelle conversation:", createError)
+      const uniqueConversations = parsedConversations.filter((conversation, index, self) => 
+        index === self.findIndex(c => c.id === conversation.id)
+      )
+      
+      // Trier les conversations par date de mise à jour, du plus récent au plus ancien
+      const sortedConversations = uniqueConversations.sort((a, b) => 
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      )
+      
+      setConversations(sortedConversations)
+      if (sortedConversations.length > 0 && !currentConversationRef.current) {
+        setCurrentConversation(sortedConversations[0])
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des conversations:", error)
+      if (user) {
+        const newChat = async () => {
+          try {
+            console.log("🆕 Création d'un nouveau chat pour l'utilisateur:", user.id)
+            const newConversation = await createChat(user.id)
+            const chatWithDates: Chat = {
+              ...newConversation,
+              created_at: new Date(newConversation.created_at),
+              updated_at: new Date(newConversation.updated_at)
             }
+            setCurrentConversation(chatWithDates)
+            setConversations([chatWithDates])
+          } catch (createError) {
+            console.error("Erreur lors de la création d'une nouvelle conversation:", createError)
           }
-          newChat()
         }
+        newChat()
       }
     }
-
-    fetchChats()
   }, [user])
+
+  // Chargement des conversations
+  useEffect(() => {
+    fetchChats()
+  }, [fetchChats])
 
   // Scroll automatique
   useEffect(() => {
@@ -125,11 +131,16 @@ export default function ChatInterface() {
       setCurrentConversation(newConversation)
       setMessages([])
       console.log("✅ Nouvelle conversation définie comme active")
+      
+      // Rafraîchir la liste pour s'assurer qu'elle est synchronisée
+      setTimeout(() => {
+        fetchChats()
+      }, 300)
     } catch (error) {
       console.error("❌ Erreur lors de la création de la conversation:", error)
       alert("Erreur lors de la création d'une nouvelle conversation. Veuillez réessayer.")
     }
-  }, [user?.id, user?.email])
+  }, [user?.id, user?.email, fetchChats])
 
   // Supprimer une conversation
   const handleDeleteConversation = useCallback(async (chatId: string) => {
@@ -251,6 +262,11 @@ export default function ChatInterface() {
         }
         
         scrollToBottom(200)
+        
+        // Rafraîchir la liste des conversations pour mettre à jour les aperçus
+        setTimeout(() => {
+          fetchChats()
+        }, 500)
         
       } catch (error) {
         console.error("❌ Erreur lors de la génération de la réponse du bot:", error)
